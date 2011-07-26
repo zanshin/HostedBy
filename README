@@ -1,0 +1,8 @@
+HostedBy was an exercise in Java programming. It inputs a file containing a set of bookmarks
+and performs a whois look up on each unique domain. The hosts are then listed in descending order of popularity.
+
+Crude but effective.
+
+NB: This works with a bookmark file produced by Safari. It has not been tested with any other browser's
+bookmark export.
+
