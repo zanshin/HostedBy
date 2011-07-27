@@ -44,8 +44,7 @@ public class HostedBy {
 
         startTime = System.currentTimeMillis();
         try {
-            BufferedReader in = new BufferedReader(new FileReader(
-                    "/Users/mark/Projects/java/HostedBy/bookmarks.html"));
+            BufferedReader in = new BufferedReader(new FileReader("/Users/mark/Projects/java/HostedBy/chromeBookmarks.html"));
             // BufferedReader in = new BufferedReader(new
             // FileReader("/Users/mark/TestBookmarks.html"));
             String str;
@@ -125,6 +124,11 @@ public class HostedBy {
      * file style. However, it should work with anything having an
      * href="http://subdomain.domain.tld/..." format. Your edge cases may vary.
      *
+     * Safari bookmarks have this format: <A HREF="http://subdomain.domain.tld/">Title</A>
+     * Chrome bookmarks have this format: <A HREF="http://subdomain.domain/tld/" ADD_DATE="###..." ICON="...">Title</A>
+     *
+     * Parser looks for '/"' which appears as the last characters within the URL portion of the bookmark.
+     *
      * @author Mark H. Nichols Jun 1, 2008
      *
      * @param aReadLine
@@ -144,19 +148,19 @@ public class HostedBy {
         // a -1 means the line hasn't got a HREF instance
         if (urlIndex != -1) {
             // just having an HREF isn't enough. Needs to be http to be of
-            // interest
-            // (i.e., eliminate feeds and javascript favlets
+            // interest, i.e., eliminate feeds and javascript favlets
             int httpIndex = aReadLine.indexOf("http");
             if (httpIndex == -1) {
-                System.out
-                        .println("Not an http bookmark - skipping further processing.");
+                System.out.println("Not an http bookmark - skipping further processing.");
                 return null;
             }
             // position ourselves at the start of the URL itself
             // HREF="http://
             // .....6
             startIndex = urlIndex + 6;
-            endIndex = aReadLine.indexOf("\">");
+            //endIndex = aReadLine.indexOf("\">");
+            //endIndex = aReadLine.indexOf("\"");
+            endIndex = nthOccurrence(aReadLine, '"', 1);
             String theUrl = aReadLine.substring(startIndex, endIndex);
 
             // bookmarks include favlets, which are javascript - toss them aside
@@ -166,7 +170,7 @@ public class HostedBy {
                 return null;
             }
 
-            // System.out.println("theUrl = " + theUrl);
+            System.out.println("theUrl = " + theUrl);
             try {
                 URI uri = new URI(theUrl);
                 // System.out.println("The uri.geHost() = " + uri.getHost());
@@ -284,4 +288,20 @@ public class HostedBy {
         }
         return results;
     }
+
+    /**
+     * nthOccurance returns the nth occurrence of the character (c) in the string (str)
+     * @param str - The string to be parsed.
+     * @param c - The character we are looking for.
+     * @param n - The occurrence of the character we are interested in finding.
+     * @return int
+     *
+     * @author Mark H. Nichols July 27, 2011 (from StackOverflow
+     */
+    public static int nthOccurrence(String str, char c, int n) {
+    int pos = str.indexOf(c, 0);
+    while (n-- > 0 && pos != -1)
+        pos = str.indexOf(c, pos+1);
+    return pos;
+}
 }
